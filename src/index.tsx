@@ -1,22 +1,37 @@
-import { NativeModules, Platform } from 'react-native';
+import { NativeModules } from 'react-native';
+const { PVWebAPIModel } = NativeModules;
 
-const LINKING_ERROR =
-  `The package 'pv-ew-rn-sdk' doesn't seem to be linked. Make sure: \n\n` +
-  Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
-  '- You rebuilt the app after installing the package\n' +
-  '- You are not using Expo Go\n';
+//Get signing key
+export async function getSigningKey(email: string) {
+  try {
+    return new Promise((resolve, reject) => {
+      PVWebAPIModel.getSigningKey(email, (response: any) => {
+        if (response) {
+          resolve(response);
+        } else {
+          reject('No response received');
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Failed to get signing key: ', error);
+    throw error;
+  }
+}
 
-const PvEwRnSdk = NativeModules.PvEwRnSdk
-  ? NativeModules.PvEwRnSdk
-  : new Proxy(
-      {},
-      {
-        get() {
-          throw new Error(LINKING_ERROR);
-        },
-      }
-    );
-
-export function multiply(a: number, b: number): Promise<number> {
-  return PvEwRnSdk.multiply(a, b);
+export async function isBackupActiveAPI(userId: string, orgId: string) {
+  try {
+    return new Promise((resolve, reject) => {
+      PVWebAPIModel.isBackupActive(userId, orgId, (completionHandler: any) => {
+        if (completionHandler) {
+          resolve(completionHandler);
+        } else {
+          reject('No response received');
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Failed to get signing key: ', error);
+    throw error;
+  }
 }
